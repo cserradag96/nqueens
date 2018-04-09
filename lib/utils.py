@@ -1,11 +1,10 @@
-#!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 
 #######################################################################################################################
 # DESCRIPTION:
 #######################################################################################################################
 
-# Solver for N-Queens using Minisat
+# TODO
 
 #######################################################################################################################
 # AUTHORS:
@@ -15,41 +14,53 @@
 # Juan Ortiz, 13-11021 <ortiz.juan14@gmail.com>
 
 #######################################################################################################################
-# PATH:
-#######################################################################################################################
-
-from sys import path       # System path
-from os import getcwd      # Current path
-from os.path import join   # Join paths
-
-# Add custom lib path to application path
-path.append(join(getcwd(), "lib"))
-
-#######################################################################################################################
 # DEPENDENCIES:
 #######################################################################################################################
 
-import sys
-from nqueens import *
+from subprocess import Popen, PIPE, STDOUT
+from os.path import basename
 
 #######################################################################################################################
-# MAIN:
+# FUNCTIONS:
 #######################################################################################################################
 
-if __name__ == "__main__":
-    size = sys.argv[1]
+# Read a file.non
+def readNQ(size):
+    return int(size)
 
-    printStatus("Generando CNF")
-    puzzle = NQueens(readNQ(size))
+# Write content into file
+def writeFile(content, file_path):
+    with open(file_path, 'w') as file:
+        file.write(str(content))
 
-    printStatus("Guardando CNF")
-    writeFile(puzzle.cnf, "input.txt")
+# Translate booleans into bits string
+def boolToBits(x):
+    return '1' if x else '0'
 
-    printStatus("Ejecutando minisat")
-    minisat("input.txt", "output.txt")
+# Iterator for stdout
+def iterStdout(p):
+  while True:
+    line = p.stdout.readline()
+    if not line: break
+    yield str(line)[2:-3]
 
-    printStatus("Generando imagen")
-    writeFile(puzzle.genBitmap("output.txt"), namePBM(size))
+# Minisat pipe
+def minisat(input_path, output_path):
+    print("")
+    command = "./minisat/core/minisat " + input_path + " " + output_path
+    process = Popen(command.split(), stdout=PIPE, stderr=STDOUT)
+    for line in iterStdout(process):
+        print(line)
+
+# Function to print verbose messages
+def printStatus(status):
+    separator = "\n======================\n"
+    message = separator + "# " + status + separator
+    print(message, end="")
+
+# Extract name from file_path and add pbm format
+def namePBM(size):
+    return size + ".pbm"
 
 #######################################################################################################################
 # :)
