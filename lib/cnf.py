@@ -35,12 +35,8 @@ class CNF:
 
     def __str__(self):
         header = "p cnf " + str(self.variables) + " " + str(len(self.clauses)) + "\n"
-        cnf = ""
-        for clause in self.clauses:
-            for term in clause.terms:
-                cnf += ("-" if term.negative else "") + term.name + " "
-            cnf += "0\n"
-        return header + cnf
+        cnf = " 0\n".join([" ".join(list(map(str, clause.terms))) for clause in self.clauses])
+        return header + cnf + " 0\n"
 
 #######################################################################################################################
 # :)
